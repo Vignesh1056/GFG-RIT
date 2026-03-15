@@ -1,0 +1,369 @@
+"use client"
+
+import { useState, useEffect } from "react"
+import { Navbar } from "@/components/navbar"
+import { Footer } from "@/components/footer"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Calendar, MapPin, Users, Clock, Search, Filter, CheckCircle2 } from "lucide-react"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
+import { createClient } from "@/lib/supabase/client"
+import { motion } from "framer-motion"
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+}
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 300, damping: 24 } }
+}
+
+const eventTypeColors: Record<string, string> = {
+  Workshop: "bg-blue-500/10 text-blue-400 border-blue-500/20",
+  Contest: "bg-primary/10 text-primary border-primary/20",
+  Talk: "bg-amber-500/10 text-amber-400 border-amber-500/20",
+}
+
+const defaultForm = { firstName: "", lastName: "", email: "", phone: "", rollNumber: "", branch: "", year: "", cpHandle: "" }
+
+export default function EventsPage() {
+  const [events, setEvents] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [typeFilter, setTypeFilter] = useState("all")
+  const [statusFilter, setStatusFilter] = useState("upcoming")
+  const [form, setForm] = useState(defaultForm)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitState, setSubmitState] = useState<Record<number, "success" | "duplicate" | "error">>({})
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      const supabase = createClient()
+      const { data } = await supabase.from("events").select("*").order("date", { ascending: true })
+      setEvents(data ?? [])
+      setIsLoading(false)
+    }
+    fetchEvents()
+  }, [])
+
+  const handleField = (field: string, value: string) =>
+    setForm(prev => ({ ...prev, [field]: value }))
+
+  const handleRegister = async (event: any, onClose: () => void) => {
+    setIsSubmitting(true)
+    const supabase = createClient()
+    const { error } = await supabase.from("event_registrations").insert({
+      event_id: event.id,
+      event_title: event.title,
+      first_name: form.firstName,
+      last_name: form.lastName,
+      email: form.email,
+      phone: form.phone,
+      roll_number: form.rollNumber,
+      branch: form.branch,
+      year: form.year,
+      cp_handle: form.cpHandle || null,
+    })
+    setIsSubmitting(false)
+    if (!error) {
+      setSubmitState(prev => ({ ...prev, [event.id]: "success" }))
+      setForm(defaultForm)
+      setTimeout(onClose, 2000)
+    } else if (error.code === "23505") {
+      setSubmitState(prev => ({ ...prev, [event.id]: "duplicate" }))
+    } else {
+      setSubmitState(prev => ({ ...prev, [event.id]: "error" }))
+    }
+  }
+
+  const filteredEvents = events.filter((event) => {
+    const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      event.description.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesType = typeFilter === "all" || event.type === typeFilter
+    const matchesStatus = statusFilter === "all" || event.status === statusFilter
+    return matchesSearch && matchesType && matchesStatus
+  })
+
+  return (
+    <main className="min-h-screen bg-background">
+      <Navbar />
+      
+      {/* Hero */}
+      <section className="pt-32 pb-8 px-6 lg:px-8">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="mx-auto max-w-4xl text-center"
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+          >
+            <Badge variant="outline" className="mb-4 border-primary/30 text-primary">
+              Events
+            </Badge>
+          </motion.div>
+          <motion.h1 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl text-balance"
+          >
+            Learn, Compete, and{" "}
+            <span className="text-primary">Grow Together</span>
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="mt-4 text-lg text-muted-foreground"
+          >
+            Explore our workshops, contests, and tech talks designed to help you excel.
+          </motion.p>
+        </motion.div>
+      </section>
+
+      {/* Filters */}
+      <section className="px-6 lg:px-8 pb-8">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+          className="mx-auto max-w-7xl"
+        >
+          <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
+            <div className="relative flex-1 max-w-md w-full">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search events..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 bg-card border-border"
+              />
+            </div>
+            <div className="flex gap-3 w-full sm:w-auto">
+              <Select value={typeFilter} onValueChange={setTypeFilter}>
+                <SelectTrigger className="w-full sm:w-[140px] bg-card border-border">
+                  <Filter className="h-4 w-4 mr-2" />
+                  <SelectValue placeholder="Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Types</SelectItem>
+                  <SelectItem value="Workshop">Workshop</SelectItem>
+                  <SelectItem value="Contest">Contest</SelectItem>
+                  <SelectItem value="Talk">Talk</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-full sm:w-[140px] bg-card border-border">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Events</SelectItem>
+                  <SelectItem value="upcoming">Upcoming</SelectItem>
+                  <SelectItem value="past">Past</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </motion.div>
+      </section>
+
+      {/* Events Grid */}
+      <section className="px-6 lg:px-8 pb-24">
+        <div className="mx-auto max-w-7xl">
+          {filteredEvents.length === 0 ? (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-center py-16"
+            >
+              <p className="text-muted-foreground">No events found matching your criteria.</p>
+            </motion.div>
+          ) : (
+            <motion.div 
+              variants={containerVariants}
+              initial="hidden"
+              animate="show"
+              className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
+            >
+              {filteredEvents.map((event) => (
+                <motion.div variants={itemVariants} whileHover={{ y: -5 }} key={event.id} className="h-full">
+                  <Card
+                    className={`group bg-card border-border hover:border-primary/50 transition-all duration-300 h-full flex flex-col ${
+                      event.status === "past" ? "opacity-70" : ""
+                    }`}
+                  >
+                  <CardHeader>
+                    <div className="flex items-center justify-between mb-2">
+                      <Badge
+                        variant="outline"
+                        className={eventTypeColors[event.type]}
+                      >
+                        {event.type}
+                      </Badge>
+                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                        <Users className="h-4 w-4" />
+                        <span>{event.attendees}/{event.max_attendees}</span>
+                      </div>
+                    </div>
+                    <CardTitle className="text-xl group-hover:text-primary transition-colors">
+                      {event.title}
+                    </CardTitle>
+                    <CardDescription className="line-clamp-2">
+                      {event.description}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4 text-primary" />
+                        <span>{event.date}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-primary" />
+                        <span>{event.time}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-primary" />
+                        <span>{event.location}</span>
+                      </div>
+                    </div>
+                    {event.status === "upcoming" ? (
+                      <Dialog onOpenChange={(open) => { if (!open) { setForm(defaultForm); setSubmitState(prev => ({ ...prev, [event.id]: undefined as any })) } }}>
+                        <DialogTrigger asChild>
+                          <Button className="w-full mt-6 bg-primary hover:bg-primary/90">Register Now</Button>
+                        </DialogTrigger>
+                        <DialogContent className="bg-card border-border sm:max-w-[500px]">
+                          <DialogHeader>
+                            <DialogTitle className="text-xl">Register for Event</DialogTitle>
+                            <DialogDescription>
+                              <span className="font-medium text-foreground">{event.title}</span><br />
+                              <span className="text-sm">{event.date} | {event.time} | {event.location}</span>
+                            </DialogDescription>
+                          </DialogHeader>
+                          {submitState[event.id] === "success" ? (
+                            <div className="flex flex-col items-center gap-3 py-8 text-center">
+                              <CheckCircle2 className="h-12 w-12 text-green-500" />
+                              <p className="font-semibold text-foreground">Registration Successful!</p>
+                              <p className="text-sm text-muted-foreground">You're registered for {event.title}. See you there!</p>
+                            </div>
+                          ) : (
+                            <form className="space-y-4 mt-4" onSubmit={async (e) => { e.preventDefault(); const close = () => (e.target as HTMLFormElement).closest('[role=dialog]')?.querySelector<HTMLButtonElement>('button[aria-label="Close"]')?.click(); await handleRegister(event, close) }}>
+                              <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                  <Label>First Name</Label>
+                                  <Input placeholder="John" className="bg-background border-border" required value={form.firstName} onChange={e => handleField("firstName", e.target.value)} />
+                                </div>
+                                <div className="space-y-2">
+                                  <Label>Last Name</Label>
+                                  <Input placeholder="Doe" className="bg-background border-border" required value={form.lastName} onChange={e => handleField("lastName", e.target.value)} />
+                                </div>
+                              </div>
+                              <div className="space-y-2">
+                                <Label>College Email</Label>
+                                <Input type="email" placeholder="john.doe@ritchennai.edu.in" className="bg-background border-border" required value={form.email} onChange={e => handleField("email", e.target.value)} />
+                              </div>
+                              <div className="space-y-2">
+                                <Label>Phone Number</Label>
+                                <Input type="tel" placeholder="+91 9876543210" className="bg-background border-border" required value={form.phone} onChange={e => handleField("phone", e.target.value)} />
+                              </div>
+                              <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                  <Label>Roll Number</Label>
+                                  <Input placeholder="1MS21CS001" className="bg-background border-border" required value={form.rollNumber} onChange={e => handleField("rollNumber", e.target.value)} />
+                                </div>
+                                <div className="space-y-2">
+                                  <Label>Branch</Label>
+                                  <Select required value={form.branch} onValueChange={v => handleField("branch", v)}>
+                                    <SelectTrigger className="bg-background border-border"><SelectValue placeholder="Select branch" /></SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="cse">Computer Science</SelectItem>
+                                      <SelectItem value="ise">Information Science</SelectItem>
+                                      <SelectItem value="ece">Electronics & Comm.</SelectItem>
+                                      <SelectItem value="eee">Electrical & Electronics</SelectItem>
+                                      <SelectItem value="me">Mechanical</SelectItem>
+                                      <SelectItem value="cv">Civil</SelectItem>
+                                      <SelectItem value="other">Other</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              </div>
+                              <div className="space-y-2">
+                                <Label>Year of Study</Label>
+                                <Select required value={form.year} onValueChange={v => handleField("year", v)}>
+                                  <SelectTrigger className="bg-background border-border"><SelectValue placeholder="Select year" /></SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="1">1st Year</SelectItem>
+                                    <SelectItem value="2">2nd Year</SelectItem>
+                                    <SelectItem value="3">3rd Year</SelectItem>
+                                    <SelectItem value="4">4th Year</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              {event.type === "Contest" && (
+                                <div className="space-y-2">
+                                  <Label>CP Handle (Optional)</Label>
+                                  <Input placeholder="LeetCode/Codeforces username" className="bg-background border-border" value={form.cpHandle} onChange={e => handleField("cpHandle", e.target.value)} />
+                                </div>
+                              )}
+                              {submitState[event.id] === "duplicate" && (
+                                <p className="text-sm text-red-500">You've already registered for this event with this email.</p>
+                              )}
+                              {submitState[event.id] === "error" && (
+                                <p className="text-sm text-red-500">Something went wrong. Please try again.</p>
+                              )}
+                              <div className="bg-muted/50 rounded-lg p-3 text-sm text-muted-foreground">
+                                Spots remaining: {event.max_attendees - event.attendees} / {event.max_attendees}
+                              </div>
+                              <Button type="submit" className="w-full bg-primary hover:bg-primary/90" disabled={isSubmitting}>
+                                {isSubmitting ? "Registering..." : "Complete Registration"}
+                              </Button>
+                            </form>
+                          )}
+                        </DialogContent>
+                      </Dialog>
+                    ) : (
+                      <Button className="w-full mt-6" variant="secondary" disabled>
+                        Event Completed
+                      </Button>
+                    )}
+                  </CardContent>
+                </Card>
+                </motion.div>
+              ))}
+            </motion.div>
+          )}
+        </div>
+      </section>
+
+      <Footer />
+    </main>
+  )
+}
