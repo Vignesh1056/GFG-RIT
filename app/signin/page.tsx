@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { Code2, Mail, Lock, User, Eye, EyeOff, GraduationCap, Phone, ArrowLeft, AlertCircle, CheckCircle } from "lucide-react"
@@ -13,6 +13,14 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { createClient } from "@/lib/supabase/client"
 
 export default function SignInPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-transparent" />}>
+      <SignInContent />
+    </Suspense>
+  )
+}
+
+function SignInContent() {
   const searchParams = useSearchParams()
   const redirectTo = searchParams.get("redirectTo") || "/"
   const authError = searchParams.get("error")
@@ -121,7 +129,7 @@ export default function SignInPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-transparent flex flex-col">
       {/* Background Pattern */}
       <div className="fixed inset-0 -z-10">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_110%)]" />
@@ -168,7 +176,7 @@ export default function SignInPage() {
           )}
 
           {/* Auth Card */}
-          <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
+          <Card className="border-border/50 bg-card/50 backdrop-blur-xl/80 backdrop-blur-sm">
             <Tabs defaultValue="signin" className="w-full">
               <CardHeader className="pb-4">
                 <TabsList className="grid w-full grid-cols-2">
@@ -256,7 +264,7 @@ export default function SignInPage() {
                         <span className="w-full border-t border-border" />
                       </div>
                       <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
+                        <span className="bg-card/50 backdrop-blur-xl px-2 text-muted-foreground">Or continue with</span>
                       </div>
                     </div>
                     <Button
@@ -321,11 +329,11 @@ export default function SignInPage() {
                           <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
                           <SelectContent>
                             <SelectItem value="cse">CSE</SelectItem>
-                            <SelectItem value="ise">ISE</SelectItem>
+                            <SelectItem value="ise">CCE</SelectItem>
                             <SelectItem value="ece">ECE</SelectItem>
                             <SelectItem value="eee">EEE</SelectItem>
                             <SelectItem value="mech">MECH</SelectItem>
-                            <SelectItem value="civil">CIVIL</SelectItem>
+                            <SelectItem value="civil">CSBS</SelectItem>
                             <SelectItem value="aids">AI & DS</SelectItem>
                             <SelectItem value="csbs">CSBS</SelectItem>
                           </SelectContent>
@@ -411,7 +419,7 @@ export default function SignInPage() {
                         <span className="w-full border-t border-border" />
                       </div>
                       <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
+                        <span className="bg-card/50 backdrop-blur-xl px-2 text-muted-foreground">Or continue with</span>
                       </div>
                     </div>
                     <Button variant="outline" className="w-full mt-4" onClick={handleGoogleSignIn} disabled={isLoading}>

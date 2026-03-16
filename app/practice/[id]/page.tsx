@@ -44,6 +44,7 @@ import {
 import { createClient } from "@/lib/supabase/client"
 import { markSolved, getSolvedProblemIds } from "@/lib/supabase/solved"
 import { useRef } from "react"
+import ReactMarkdown from "react-markdown"
 
 const problemsData: Record<number, {
   id: number
@@ -364,7 +365,8 @@ export default function ProblemPage({ params }: { params: Promise<{ id: string }
   // Load user + check if already solved
   useEffect(() => {
     const supabase = createClient()
-    supabase.auth.getUser().then(async ({ data }) => {
+    supabase.auth.getUser().then(async (response: any) => {
+      const data = response.data
       if (data.user) {
         setUserId(data.user.id)
         const ids = await getSolvedProblemIds(data.user.id)
@@ -479,25 +481,28 @@ ${code}
 
 Help them understand the problem, debug their code, or explain concepts. Be concise and clear.`
 
-      const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.NEXT_PUBLIC_GEMINI_API_KEY}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${process.env.NEXT_PUBLIC_OPENROUTER_API_KEY}`,
-          "HTTP-Referer": window.location.origin,
-          "X-Title": "GFG-RIT Coding Platform",
         },
         body: JSON.stringify({
-          model: "google/gemma-3n-e4b-it:free",
-          messages: [
-            { role: "system", content: systemContext },
-            { role: "user", content: userMsg },
+          systemInstruction: {
+            parts: [{ text: systemContext }]
+          },
+          contents: [
+            ...chatMessages.map(m => ({
+              role: m.role === "user" ? "user" : "model",
+              parts: [{ text: m.text }]
+            })),
+            { role: "user", parts: [{ text: userMsg }]}
           ],
         }),
       })
       const data = await response.json()
       if (!response.ok) throw new Error(data?.error?.message || JSON.stringify(data))
-      const aiText = data?.choices?.[0]?.message?.content || "Sorry, I couldn't generate a response."
+      
+      const aiText = data?.candidates?.[0]?.content?.parts?.[0]?.text || "Sorry, I couldn't generate a response."
       setChatMessages(prev => [...prev, { role: "ai", text: aiText }])
     } catch (err) {
       setChatMessages(prev => [...prev, { role: "ai", text: `Error: ${err instanceof Error ? err.message : "Failed to connect to AI."}` }])
@@ -510,7 +515,7 @@ Help them understand the problem, debug their code, or explain concepts. Be conc
   return (
     <main className="h-screen bg-background flex flex-col overflow-hidden">
       {/* Top Bar */}
-      <header className="h-14 min-h-14 border-b border-border bg-card flex items-center justify-between px-4 shrink-0">
+      <header className="h-14 min-h-14 border-b border-border bg-card/50 backdrop-blur-xl flex items-center justify-between px-4 shrink-0">
         <div className="flex items-center gap-4">
           <Link
             href="/practice"
@@ -553,7 +558,7 @@ Help them understand the problem, debug their code, or explain concepts. Be conc
       <ResizablePanelGroup direction="horizontal" className="flex-1 min-h-0">
         {/* Left Panel - Problem Description */}
         <ResizablePanel defaultSize={40} minSize={30}>
-          <div className="h-full flex flex-col bg-card overflow-hidden">
+          <div className="h-full flex flex-col bg-card/50 backdrop-blur-xl overflow-hidden">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0 overflow-hidden">
               <TabsList className="w-full justify-start rounded-none border-b border-border bg-transparent h-10 px-4">
                 <TabsTrigger
@@ -701,12 +706,30 @@ Help them understand the problem, debug their code, or explain concepts. Be conc
                   )}
                   {chatMessages.map((msg, i) => (
                     <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-                      <div className={`max-w-[85%] rounded-lg px-3 py-2 text-xs whitespace-pre-wrap ${
+                      <div className={`max-w-[85%] rounded-lg px-3 py-2 text-xs ${
                         msg.role === "user"
                           ? "bg-primary text-primary-foreground"
                           : "bg-muted/50 border border-border text-foreground"
                       }`}>
-                        {msg.text}
+                        {msg.role === "user" ? msg.text : (
+                          <ReactMarkdown
+                            components={{
+                              p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                              strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+                              ul: ({ children }) => <ul className="list-disc list-inside space-y-1 mb-2">{children}</ul>,
+                              ol: ({ children }) => <ol className="list-decimal list-inside space-y-1 mb-2">{children}</ol>,
+                              li: ({ children }) => <li className="ml-2">{children}</li>,
+                              code: ({ children, className }) => className
+                                ? <code className="block bg-background/70 rounded p-2 font-mono my-1 whitespace-pre-wrap">{children}</code>
+                                : <code className="bg-background/70 rounded px-1 font-mono">{children}</code>,
+                              h1: ({ children }) => <h1 className="font-bold text-sm mb-1">{children}</h1>,
+                              h2: ({ children }) => <h2 className="font-bold text-sm mb-1">{children}</h2>,
+                              h3: ({ children }) => <h3 className="font-semibold mb-1">{children}</h3>,
+                            }}
+                          >
+                            {msg.text}
+                          </ReactMarkdown>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -745,7 +768,7 @@ Help them understand the problem, debug their code, or explain concepts. Be conc
             <ResizablePanel defaultSize={65} minSize={30}>
               <div className="h-full flex flex-col bg-background">
                 {/* Editor Header */}
-                <div className="h-10 border-b border-border bg-card flex items-center justify-between px-4">
+                <div className="h-10 border-b border-border bg-card/50 backdrop-blur-xl flex items-center justify-between px-4">
                   <div className="flex items-center gap-3">
                     <Code2 className="h-4 w-4 text-primary" />
                     <Select value={language} onValueChange={setLanguage}>
@@ -815,7 +838,7 @@ Help them understand the problem, debug their code, or explain concepts. Be conc
 
             {/* Output Panel */}
             <ResizablePanel defaultSize={35} minSize={20}>
-              <div className="h-full flex flex-col bg-card overflow-hidden">
+              <div className="h-full flex flex-col bg-card/50 backdrop-blur-xl overflow-hidden">
                 <Tabs value={outputTab} onValueChange={setOutputTab} className="flex-1 flex flex-col min-h-0 overflow-hidden">
                   <div className="border-b border-border flex items-center justify-between pr-4">
                     <TabsList className="rounded-none bg-transparent h-10 px-4">

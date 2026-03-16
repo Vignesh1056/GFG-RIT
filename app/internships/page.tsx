@@ -25,7 +25,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Search, MapPin, Building2, IndianRupee, Clock, ExternalLink, Filter, Briefcase } from "lucide-react"
 import { motion } from "framer-motion"
 
@@ -63,7 +62,7 @@ export default function InternshipsPage() {
   useEffect(() => {
     const fetchInternships = async () => {
       const supabase = createClient()
-      const { data } = await supabase.from("internships").select("*").order("created_at", { ascending: false })
+      const { data, error } = await supabase.from("internships").select("*").order("created_at", { ascending: false })
       setInternships(data ?? [])
       setIsLoading(false)
     }
@@ -80,7 +79,7 @@ export default function InternshipsPage() {
   })
 
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-screen bg-transparent">
       <Navbar />
       
       {/* Hero */}
@@ -120,7 +119,7 @@ export default function InternshipsPage() {
         </motion.div>
       </section>
 
-      {/* Tabs */}
+      {/* Listings */}
       <section className="px-6 lg:px-8 pb-24">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -128,29 +127,21 @@ export default function InternshipsPage() {
           transition={{ duration: 0.5, delay: 0.4 }}
           className="mx-auto max-w-7xl"
         >
-          <Tabs defaultValue="listings" className="w-full">
-            <TabsList className="grid w-full grid-cols-1 mb-8 bg-card border border-border">
-              <TabsTrigger value="listings" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                <Briefcase className="h-4 w-4 mr-2" />
-                Internship Listings
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="listings" className="space-y-6">
-              {/* Filters */}
-              <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
+          <div className="space-y-6">
+            {/* Filters */}
+            <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
                 <div className="relative flex-1 max-w-md w-full">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     placeholder="Search company or role..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 bg-card border-border"
+                    className="pl-10 bg-card/50 backdrop-blur-xl border-border"
                   />
                 </div>
                 <div className="flex flex-wrap gap-3 w-full lg:w-auto">
                   <Select value={roleFilter} onValueChange={setRoleFilter}>
-                    <SelectTrigger className="w-full sm:w-[140px] bg-card border-border">
+                    <SelectTrigger className="w-full sm:w-[140px] bg-card/50 backdrop-blur-xl border-border">
                       <Filter className="h-4 w-4 mr-2" />
                       <SelectValue placeholder="Role" />
                     </SelectTrigger>
@@ -162,7 +153,7 @@ export default function InternshipsPage() {
                     </SelectContent>
                   </Select>
                   <Select value={modeFilter} onValueChange={setModeFilter}>
-                    <SelectTrigger className="w-full sm:w-[140px] bg-card border-border">
+                    <SelectTrigger className="w-full sm:w-[140px] bg-card/50 backdrop-blur-xl border-border">
                       <SelectValue placeholder="Mode" />
                     </SelectTrigger>
                     <SelectContent>
@@ -173,7 +164,7 @@ export default function InternshipsPage() {
                     </SelectContent>
                   </Select>
                   <Select value={batchFilter} onValueChange={setBatchFilter}>
-                    <SelectTrigger className="w-full sm:w-[140px] bg-card border-border">
+                    <SelectTrigger className="w-full sm:w-[140px] bg-card/50 backdrop-blur-xl border-border">
                       <SelectValue placeholder="Batch" />
                     </SelectTrigger>
                     <SelectContent>
@@ -186,16 +177,14 @@ export default function InternshipsPage() {
                 </div>
               </div>
 
-              {/* Internship Cards */}
-              {filteredInternships.length === 0 ? (
-                <motion.div 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="text-center py-16"
-                >
+            {/* Internship Cards */}
+            {isLoading ? (
+              <div className="text-center py-16 text-muted-foreground text-sm">Loading internships...</div>
+            ) : filteredInternships.length === 0 ? (
+                <div className="text-center py-16">
                   <p className="text-muted-foreground">No internships found matching your criteria.</p>
-                </motion.div>
-              ) : (
+                </div>
+            ) : (
                 <motion.div 
                   variants={containerVariants}
                   initial="hidden"
@@ -204,7 +193,7 @@ export default function InternshipsPage() {
                 >
                   {filteredInternships.map((internship) => (
                     <motion.div variants={itemVariants} whileHover={{ y: -5 }} key={internship.id} className="h-full">
-                      <Card className="bg-card border-border hover:border-primary/50 transition-colors h-full flex flex-col">
+                      <Card className="bg-card/50 backdrop-blur-xl border-border hover:border-primary/50 transition-colors h-full flex flex-col">
                         <CardHeader>
                           <div className="flex items-center justify-between mb-2">
                             <Badge variant="outline" className={modeColors[internship.mode]}>
@@ -247,7 +236,7 @@ export default function InternshipsPage() {
                               <ExternalLink className="ml-2 h-4 w-4" />
                             </Button>
                           </DialogTrigger>
-                          <DialogContent className="bg-card border-border sm:max-w-[550px] max-h-[90vh] overflow-y-auto">
+                          <DialogContent className="bg-card/50 backdrop-blur-xl border-border sm:max-w-[550px] max-h-[90vh] overflow-y-auto">
                             <DialogHeader>
                               <DialogTitle className="text-xl">Apply for Internship</DialogTitle>
                               <DialogDescription>
@@ -393,9 +382,8 @@ export default function InternshipsPage() {
                     </motion.div>
                   ))}
                 </motion.div>
-              )}
-            </TabsContent>
-          </Tabs>
+            )}
+          </div>
         </motion.div>
       </section>
 

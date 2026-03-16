@@ -97,7 +97,7 @@ export default function AboutPage() {
   const y = useTransform(scrollYProgress, [0, 0.2], [0, 100])
 
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-screen bg-transparent">
       <Navbar />
       
       {/* Hero */}
@@ -137,7 +137,7 @@ export default function AboutPage() {
       </section>
 
       {/* Mission */}
-      <section className="py-16 px-6 lg:px-8 bg-card/50">
+      <section className="py-16 px-6 lg:px-8 bg-card/50 backdrop-blur-xl/50">
         <div className="mx-auto max-w-7xl">
           <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 items-center">
             <motion.div
@@ -170,7 +170,7 @@ export default function AboutPage() {
               className="grid grid-cols-2 gap-4"
             >
               {stats.map((stat, i) => (
-                <div key={i} className="rounded-2xl border border-border bg-card p-6 hover:border-primary/50 transition-colors">
+                <div key={i} className="rounded-2xl border border-border bg-card/50 backdrop-blur-xl p-6 hover:border-primary/50 transition-colors">
                   <div className="text-4xl font-bold text-primary">{stat.value}</div>
                   <div className="mt-1 text-sm text-muted-foreground">{stat.description}</div>
                 </div>
@@ -205,7 +205,7 @@ export default function AboutPage() {
                 transition={{ duration: 0.5, delay: i * 0.1 }}
                 whileHover={{ y: -5 }}
                 key={objective.title}
-                className="group rounded-2xl border border-border bg-card p-6 shadow-sm hover:shadow-md transition-all hover:border-primary/50"
+                className="group rounded-2xl border border-border bg-card/50 backdrop-blur-xl p-6 shadow-sm hover:shadow-md transition-all hover:border-primary/50"
               >
                 <div className="inline-flex rounded-xl bg-primary/10 p-3 mb-4 group-hover:bg-primary/20 transition-colors">
                   <objective.icon className="h-6 w-6 text-primary" />
@@ -221,7 +221,7 @@ export default function AboutPage() {
       </section>
 
       {/* Timeline */}
-      <section className="py-16 px-6 lg:px-8 bg-card/50 overflow-hidden">
+      <section className="py-16 px-6 lg:px-8 bg-card/50 backdrop-blur-xl/50 overflow-hidden">
         <div className="mx-auto max-w-4xl">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -259,7 +259,7 @@ export default function AboutPage() {
                     transition={{ duration: 0.6, type: "spring" }}
                     className={`flex-1 ${index % 2 === 0 ? "md:text-right" : "md:text-left"}`}
                   >
-                    <div className="rounded-2xl border border-border bg-card p-6 hover:border-primary/50 transition-colors">
+                    <div className="rounded-2xl border border-border bg-card/50 backdrop-blur-xl p-6 hover:border-primary/50 transition-colors">
                       <div className="text-2xl font-bold text-primary">{item.year}</div>
                       <h3 className="mt-2 text-lg font-semibold text-foreground">{item.title}</h3>
                       <p className="mt-1 text-sm text-muted-foreground">{item.description}</p>

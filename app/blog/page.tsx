@@ -118,7 +118,7 @@ export default function BlogPage() {
   const featuredPosts = blogPosts.filter((post) => post.featured)
 
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-screen bg-transparent">
       <Navbar />
       
       {/* Hero */}
@@ -143,7 +143,7 @@ export default function BlogPage() {
           <h2 className="text-2xl font-bold text-foreground mb-6">Featured Posts</h2>
           <div className="grid gap-6 md:grid-cols-2">
             {featuredPosts.map((post) => (
-              <Card key={post.id} className="bg-card border-border hover:border-primary/50 transition-colors group">
+              <Card key={post.id} className="bg-card/50 backdrop-blur-xl border-border hover:border-primary/50 transition-colors group">
                 <CardHeader>
                   <div className="flex items-center gap-2 mb-2">
                     <Badge variant="outline" className={categoryColors[post.category]}>
@@ -196,7 +196,7 @@ export default function BlogPage() {
                 placeholder="Search articles..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 bg-card border-border"
+                className="pl-10 bg-card/50 backdrop-blur-xl border-border"
               />
             </div>
             <div className="flex flex-wrap gap-2">
@@ -227,7 +227,7 @@ export default function BlogPage() {
           ) : (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {filteredPosts.map((post) => (
-                <Card key={post.id} className="bg-card border-border hover:border-primary/50 transition-colors group">
+                <Card key={post.id} className="bg-card/50 backdrop-blur-xl border-border hover:border-primary/50 transition-colors group">
                   <CardHeader>
                     <div className="flex items-center gap-2 mb-2">
                       <Badge variant="outline" className={categoryColors[post.category]}>

@@ -63,31 +63,31 @@ const dsaResources = [
 
 const learningPaths = [
   {
-    title: "DSA Roadmap",
-    description: "Complete guide from basics to advanced data structures and algorithms.",
-    duration: "3-6 months",
+    title: "Python",
+    description: "Complete guide from basics to advanced Python.",
+    duration: "self paced",
     topics: ["Time Complexity", "Arrays", "Strings", "Trees", "Graphs", "DP"],
     level: "Beginner to Advanced",
   },
   {
-    title: "Web Development",
-    description: "Full-stack web development with modern technologies.",
-    duration: "4-6 months",
-    topics: ["String", "Math", "Stack", "Trees"], // Mapped to our pseudo-generated topics
+    title: "Java",
+    description: "Complete guide from basics to advanced Python.",
+    duration: "self paced",
+    topics: ["String", "Arrays", "Stack", "Trees"], // Mapped to our pseudo-generated topics
     level: "Beginner to Intermediate",
   },
   {
-    title: "Competitive Programming",
-    description: "Master problem-solving for coding competitions.",
-    duration: "6-12 months",
+    title: "C++",
+    description: "Master C++ for coding competitions.",
+    duration: "self paced",
     topics: ["Array", "Math", "Number Theory", "Binary Search"],
     level: "Intermediate to Advanced",
   },
   {
-    title: "Machine Learning",
-    description: "Introduction to ML concepts and practical implementation.",
-    duration: "3-4 months",
-    topics: ["Math", "Data Structures", "Dynamic Programming"], // Mapped to pseudo-topics
+    title: "Javascript",
+    description: "Introduction to Javascript and it's practical implementation.",
+    duration: "Self paced",
+    topics: ["Functions", "Data Structures", "Arrays"], // Mapped to pseudo-topics
     level: "Intermediate",
   },
 ]
@@ -231,7 +231,7 @@ function InterviewPrepTab() {
       >
         {SECTION_LINKS.map((section) => (
           <motion.div variants={itemVariants} whileHover={{ y: -5 }} key={section.title} className="h-full">
-          <Card className="bg-card border-border h-full flex flex-col">
+          <Card className="bg-card/50 backdrop-blur-xl border-border h-full flex flex-col">
             <CardHeader>
               <CardTitle>{section.title}</CardTitle>
             </CardHeader>
@@ -263,7 +263,7 @@ export default function ResourcesPage() {
   const [activeTab, setActiveTab] = useState("dsa")
 
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-screen bg-transparent">
       <Navbar />
       
       {/* Hero */}
@@ -307,7 +307,7 @@ export default function ResourcesPage() {
       <section className="px-6 lg:px-8 pb-24">
         <div className="mx-auto max-w-7xl">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-3 mb-8 bg-card border border-border">
+            <TabsList className="grid w-full grid-cols-3 mb-8 bg-card/50 backdrop-blur-xl border border-border">
               <TabsTrigger value="dsa" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <Code className="h-4 w-4 mr-2" />
                 DSA Practice
@@ -332,7 +332,7 @@ export default function ResourcesPage() {
               >
                 {dsaResources.map((resource) => (
                   <motion.div variants={itemVariants} whileHover={{ y: -5 }} key={resource.title} className="h-full">
-                  <Card className="bg-card border-border hover:border-primary/50 transition-colors h-full flex flex-col">
+                  <Card className="bg-card/50 backdrop-blur-xl border-border hover:border-primary/50 transition-colors h-full flex flex-col">
                     <CardHeader>
                       <div className="flex items-center justify-between mb-2">
                         <Badge variant="outline" className={difficultyColors[resource.difficulty]}>
@@ -380,7 +380,7 @@ export default function ResourcesPage() {
 
                   return (
                     <motion.div variants={itemVariants} whileHover={{ y: -5 }} key={path.title} className="h-full">
-                    <Card className="bg-card border-border hover:border-primary/50 transition-colors h-full flex flex-col">
+                    <Card className="bg-card/50 backdrop-blur-xl border-border hover:border-primary/50 transition-colors h-full flex flex-col">
                       <CardHeader className="pb-4">
                         <div className="flex items-center justify-between mb-4">
                           <Badge variant="outline" className="border-primary/30 text-primary">

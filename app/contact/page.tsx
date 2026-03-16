@@ -41,34 +41,34 @@ const contactInfo = [
 
 const socialLinks = [
   { name: "GitHub", icon: Github, link: "https://github.com/gfg-rit", color: "hover:text-foreground" },
-  { name: "LinkedIn", icon: Linkedin, link: "https://linkedin.com/company/gfg-rit", color: "hover:text-blue-400" },
+  { name: "LinkedIn", icon: Linkedin, link: "https://www.linkedin.com/in/gfg-rit/", color: "hover:text-blue-400" },
   { name: "Twitter", icon: Twitter, link: "https://twitter.com/gfg_rit", color: "hover:text-cyan-400" },
-  { name: "Instagram", icon: Instagram, link: "https://instagram.com/gfg_rit", color: "hover:text-pink-400" },
+  { name: "Instagram", icon: Instagram, link: "https://www.instagram.com/geeksforgeeks.rit?igsh=ZGJ5cGhiOGdicG82", color: "hover:text-pink-400" },
 ]
 
 const teamContacts = [
   {
-    name: "Rahul Sharma",
+    name: "Praveen",
     role: "Club President",
-    email: "rahul.president@ritchennai.edu.in",
+    email: "praveen.president@ritchennai.edu.in",
     specialization: "General Inquiries, Partnerships",
   },
   {
-    name: "Priya Patel",
+    name: "Pranesh",
     role: "Vice President",
-    email: "priya.vp@ritchennai.edu.in",
+    email: "pranesh.vp@ritchennai.edu.in",
     specialization: "Events, Workshops",
   },
   {
-    name: "Amit Kumar",
+    name: "Sanjai",
     role: "Technical Lead",
-    email: "amit.tech@ritchennai.edu.in",
+    email: "sanjai.tech@ritchennai.edu.in",
     specialization: "Technical Questions, Projects",
   },
   {
-    name: "Sneha Reddy",
+    name: "Mugunthan",
     role: "Event Coordinator",
-    email: "sneha.events@ritchennai.edu.in",
+    email: "mugunthan.events@ritchennai.edu.in",
     specialization: "Event Registration, Collaborations",
   },
 ]
@@ -105,7 +105,7 @@ export default function ContactPage() {
   }
 
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-screen bg-transparent">
       <Navbar />
       
       {/* Hero */}
@@ -132,7 +132,7 @@ export default function ContactPage() {
               <a
                 key={info.title}
                 href={info.link}
-                className="group rounded-2xl border border-border bg-card p-6 text-center hover:border-primary/50 transition-colors"
+                className="group rounded-2xl border border-border bg-card/50 backdrop-blur-xl p-6 text-center hover:border-primary/50 transition-colors"
               >
                 <div className="mx-auto mb-4 inline-flex rounded-xl bg-primary/10 p-3">
                   <info.icon className="h-6 w-6 text-primary" />
@@ -152,7 +152,7 @@ export default function ContactPage() {
         <div className="mx-auto max-w-7xl">
           <div className="grid gap-12 lg:grid-cols-2">
             {/* Contact Form */}
-            <Card className="bg-card border-border">
+            <Card className="bg-card/50 backdrop-blur-xl border-border">
               <CardHeader>
                 <div className="inline-flex rounded-xl bg-primary/10 p-3 w-fit mb-2">
                   <MessageSquare className="h-6 w-6 text-primary" />
@@ -226,7 +226,7 @@ export default function ContactPage() {
             {/* Team Contacts & Social */}
             <div className="space-y-8">
               {/* Team Contacts */}
-              <Card className="bg-card border-border">
+              <Card className="bg-card/50 backdrop-blur-xl border-border">
                 <CardHeader>
                   <CardTitle className="text-xl">Reach Out Directly</CardTitle>
                   <CardDescription>
@@ -261,7 +261,7 @@ export default function ContactPage() {
               </Card>
 
               {/* Social Links */}
-              <Card className="bg-card border-border">
+              <Card className="bg-card/50 backdrop-blur-xl border-border">
                 <CardHeader>
                   <CardTitle className="text-xl">Connect With Us</CardTitle>
                   <CardDescription>
@@ -287,7 +287,7 @@ export default function ContactPage() {
               </Card>
 
               {/* FAQ Link */}
-              <Card className="bg-card border-border bg-primary/5">
+              <Card className="bg-card/50 backdrop-blur-xl border-border bg-primary/5">
                 <CardContent className="pt-6">
                   <div className="text-center">
                     <h3 className="font-semibold text-foreground mb-2">Have Common Questions?</h3>

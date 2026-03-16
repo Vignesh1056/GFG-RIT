@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/client"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Calendar, MessageSquare, Trash2, Briefcase, Plus } from "lucide-react"
+import { Calendar, MessageSquare, Trash2, Briefcase, Plus, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -90,7 +90,7 @@ export default function AdminPage() {
   const [isLoading, setIsLoading] = useState(true)
 
   // Form states
-  const [newEvent, setNewEvent] = useState({ title: '', description: '', date: '', time: '', location: '', type: 'Workshop', status: 'upcoming', max_attendees: '100' })
+  const [newEvent, setNewEvent] = useState({ title: '', description: '', date: '', time: '', location: '', type: 'Workshop', status: 'upcoming', max_attendees: '100', is_team_event: false, max_team_size: '2', is_paid: false, fee_amount: '100' })
   const [newInternship, setNewInternship] = useState({ company: '', role: '', location: '', mode: 'Remote', stipend: '', duration: '', batch: '', type: 'SDE', posted: 'Just now', deadline: '' })
   const [isSubmittingEvent, setIsSubmittingEvent] = useState(false)
   const [isSubmittingInternship, setIsSubmittingInternship] = useState(false)
@@ -165,11 +165,23 @@ export default function AdminPage() {
       type: newEvent.type,
       status: newEvent.status,
       max_attendees: parseInt(newEvent.max_attendees),
-      attendees: 0
+      attendees: 0,
+      is_team_event: newEvent.is_team_event,
+      max_team_size: newEvent.is_team_event ? parseInt(newEvent.max_team_size) : 1,
+      is_paid: newEvent.is_paid,
+      fee_amount: newEvent.is_paid ? parseInt(newEvent.fee_amount) : 0,
     }).select()
     
-    if (data && data[0]) setEvents([data[0], ...events])
-    setNewEvent({ title: '', description: '', date: '', time: '', location: '', type: 'Workshop', status: 'upcoming', max_attendees: '100' })
+    if (data && data[0]) {
+      setEvents([data[0], ...events])
+      // Notify all users via email
+      fetch("/api/notify-event", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data[0]),
+      })
+    }
+    setNewEvent({ title: '', description: '', date: '', time: '', location: '', type: 'Workshop', status: 'upcoming', max_attendees: '100', is_team_event: false, max_team_size: '2', is_paid: false, fee_amount: '100' })
     setIsSubmittingEvent(false)
   }
 
@@ -201,7 +213,7 @@ export default function AdminPage() {
   }
 
   return (
-    <main className="min-h-screen bg-background p-6 lg:p-10">
+    <main className="min-h-screen bg-transparent p-6 lg:p-10">
       <div className="max-w-7xl mx-auto">
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
@@ -222,7 +234,7 @@ export default function AdminPage() {
           className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-10"
         >
           <motion.div variants={itemVariants} whileHover={{ y: -5 }}>
-          <Card className="bg-card border-border shadow-sm">
+          <Card className="bg-card/50 backdrop-blur-xl border-border shadow-sm">
             <CardContent className="p-6">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-primary/10 rounded-xl text-primary"><Calendar className="h-6 w-6" /></div>
@@ -235,7 +247,7 @@ export default function AdminPage() {
           </Card>
           </motion.div>
           <motion.div variants={itemVariants} whileHover={{ y: -5 }}>
-          <Card className="bg-card border-border shadow-sm">
+          <Card className="bg-card/50 backdrop-blur-xl border-border shadow-sm">
             <CardContent className="p-6">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-blue-500/10 rounded-xl text-blue-500"><MessageSquare className="h-6 w-6" /></div>
@@ -248,7 +260,7 @@ export default function AdminPage() {
           </Card>
           </motion.div>
           <motion.div variants={itemVariants} whileHover={{ y: -5 }}>
-          <Card className="bg-card border-border shadow-sm">
+          <Card className="bg-card/50 backdrop-blur-xl border-border shadow-sm">
             <CardContent className="p-6">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-green-500/10 rounded-xl text-green-500"><Calendar className="h-6 w-6" /></div>
@@ -261,7 +273,7 @@ export default function AdminPage() {
           </Card>
           </motion.div>
           <motion.div variants={itemVariants} whileHover={{ y: -5 }}>
-          <Card className="bg-card border-border shadow-sm">
+          <Card className="bg-card/50 backdrop-blur-xl border-border shadow-sm">
             <CardContent className="p-6">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-amber-500/10 rounded-xl text-amber-500"><Briefcase className="h-6 w-6" /></div>
@@ -276,7 +288,7 @@ export default function AdminPage() {
         </motion.div>
 
         <Tabs defaultValue="events" className="space-y-8">
-          <div className="rounded-xl bg-card border border-border p-2 shadow-sm inline-block w-full overflow-x-auto overflow-y-hidden">
+          <div className="rounded-xl bg-card/50 backdrop-blur-xl border border-border p-2 shadow-sm inline-block w-full overflow-x-auto overflow-y-hidden">
             <TabsList className="bg-transparent h-auto p-0 flex space-x-2">
               <TabsTrigger value="events" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md rounded-lg px-4 py-2.5 transition-all text-muted-foreground whitespace-nowrap flex-shrink-0">
                 <Calendar className="h-4 w-4 mr-2" />
@@ -305,7 +317,7 @@ export default function AdminPage() {
           {/* Manage Stats */}
           <TabsContent value="stats" className="mt-0">
             <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3 }}>
-            <Card className="bg-card border-border">
+            <Card className="bg-card/50 backdrop-blur-xl border-border">
               <CardHeader>
                 <CardTitle>Manage Homepage & About Stats</CardTitle>
               </CardHeader>
@@ -338,7 +350,7 @@ export default function AdminPage() {
           {/* Manage Events */}
           <TabsContent value="events" className="mt-0 space-y-8">
             <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3 }}>
-            <Card className="bg-card border-border shadow-sm">
+            <Card className="bg-card/50 backdrop-blur-xl border-border shadow-sm">
               <CardHeader>
                 <CardTitle>Create New Event</CardTitle>
               </CardHeader>
@@ -389,6 +401,47 @@ export default function AdminPage() {
                     <Label>Max Attendees</Label>
                     <Input type="number" required value={newEvent.max_attendees} onChange={e => setNewEvent({...newEvent, max_attendees: e.target.value})} />
                   </div>
+                  <div className="space-y-3 col-span-1 md:col-span-2 lg:col-span-3">
+                    <Label>Event Format</Label>
+                    <div className="flex items-center gap-6">
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" name="event_format" checked={!newEvent.is_team_event} onChange={() => setNewEvent({...newEvent, is_team_event: false})} className="accent-primary" />
+                        <span className="text-sm">Individual Event</span>
+                      </label>
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" name="event_format" checked={newEvent.is_team_event} onChange={() => setNewEvent({...newEvent, is_team_event: true})} className="accent-primary" />
+                        <span className="text-sm">Team Event</span>
+                      </label>
+                    </div>
+                    {newEvent.is_team_event && (
+                      <div className="flex items-center gap-3 p-3 rounded-lg border border-primary/20 bg-primary/5">
+                        <Users className="h-4 w-4 text-primary shrink-0" />
+                        <Label className="shrink-0">Max members per team</Label>
+                        <Input type="number" min="2" max="10" className="w-24" value={newEvent.max_team_size} onChange={e => setNewEvent({...newEvent, max_team_size: e.target.value})} />
+                      </div>
+                    )}
+                  </div>
+                  <div className="space-y-3 col-span-1 md:col-span-2 lg:col-span-3">
+                    <Label>Participation Fee</Label>
+                    <div className="flex items-center gap-6">
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" name="fee_type" checked={!newEvent.is_paid} onChange={() => setNewEvent({...newEvent, is_paid: false})} className="accent-primary" />
+                        <span className="text-sm">Free Event</span>
+                      </label>
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" name="fee_type" checked={newEvent.is_paid} onChange={() => setNewEvent({...newEvent, is_paid: true})} className="accent-primary" />
+                        <span className="text-sm">Paid Event</span>
+                      </label>
+                    </div>
+                    {newEvent.is_paid && (
+                      <div className="flex items-center gap-3 p-3 rounded-lg border border-amber-500/20 bg-amber-500/5">
+                        <span className="text-amber-500 font-bold shrink-0">₹</span>
+                        <Label className="shrink-0">Fee amount</Label>
+                        <Input type="number" min="1" className="w-28" value={newEvent.fee_amount} onChange={e => setNewEvent({...newEvent, fee_amount: e.target.value})} />
+                        <span className="text-xs text-muted-foreground">Students will pay via QR & submit transaction ID</span>
+                      </div>
+                    )}
+                  </div>
                   <div className="col-span-1 md:col-span-2 lg:col-span-3">
                     <Button type="submit" disabled={isSubmittingEvent} className="mt-2">
                       <Plus className="h-4 w-4 mr-2" />
@@ -404,10 +457,10 @@ export default function AdminPage() {
               <h3 className="text-xl font-bold flex items-center gap-2"><Calendar className="text-primary"/> Active Events</h3>
               <motion.div variants={containerVariants} initial="hidden" animate="show" className="grid gap-4">
               {events.map((e) => (
-                <Card key={e.id} className="bg-card border-border flex items-center justify-between p-4 flex-wrap gap-4">
+                <Card key={e.id} className="bg-card/50 backdrop-blur-xl border-border flex items-center justify-between p-4 flex-wrap gap-4">
                   <div>
                     <h3 className="font-semibold">{e.title} <Badge className="ml-2" variant="outline">{e.status}</Badge></h3>
-                    <p className="text-sm text-muted-foreground">{e.date} | {e.location} | {e.attendees}/{e.max_attendees} registered</p>
+                    <p className="text-sm text-muted-foreground">{e.date} | {e.location} | {e.attendees}/{e.max_attendees} registered{(e as any).is_team_event ? ` | Team event (max ${(e as any).max_team_size}/team)` : ''}</p>
                   </div>
                   <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-red-500" onClick={() => deleteEvent(e.id)}>
                     <Trash2 className="h-4 w-4" />
@@ -421,7 +474,7 @@ export default function AdminPage() {
           {/* Manage Internships */}
           <TabsContent value="internships" className="mt-0 space-y-8">
             <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3 }}>
-            <Card className="bg-card border-border shadow-sm">
+            <Card className="bg-card/50 backdrop-blur-xl border-border shadow-sm">
               <CardHeader>
                 <CardTitle>Create New Internship</CardTitle>
               </CardHeader>
@@ -492,7 +545,7 @@ export default function AdminPage() {
               <h3 className="text-xl font-bold flex items-center gap-2"><Briefcase className="text-primary"/> Internship Listings</h3>
               <motion.div variants={containerVariants} initial="hidden" animate="show" className="grid gap-4">
               {internships.map((i) => (
-                <Card key={i.id} className="bg-card border-border flex items-center justify-between p-4 flex-wrap gap-4">
+                <Card key={i.id} className="bg-card/50 backdrop-blur-xl border-border flex items-center justify-between p-4 flex-wrap gap-4">
                   <div>
                     <h3 className="font-semibold">{i.role} at {i.company}</h3>
                     <p className="text-sm text-muted-foreground">{i.location} | {i.mode} | Batch: {i.batch.join(", ")} | Deadline: {i.deadline}</p>
@@ -509,7 +562,7 @@ export default function AdminPage() {
           {/* Event Registrations */}
           <TabsContent value="registrations" className="mt-0">
             <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3 }}>
-            <Card className="bg-card border-border overflow-hidden shadow-sm">
+            <Card className="bg-card/50 backdrop-blur-xl border-border overflow-hidden shadow-sm">
               <CardHeader>
                 <CardTitle>Event Registrations</CardTitle>
               </CardHeader>
@@ -573,7 +626,7 @@ export default function AdminPage() {
                 <p className="text-sm text-muted-foreground">No messages yet.</p>
               ) : (
                 messages.map((m) => (
-                  <Card key={m.id} className="bg-card border-border">
+                  <Card key={m.id} className="bg-card/50 backdrop-blur-xl border-border">
                     <CardContent className="pt-5">
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1 min-w-0">

@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { createClient } from "@/lib/supabase/client"
 import { getProfile, type Profile } from "@/lib/supabase/profiles"
-import type { User as SupabaseUser } from "@supabase/supabase-js"
+import type { User as SupabaseUser, AuthChangeEvent } from "@supabase/supabase-js"
 
 const navigation = [
   { name: "Home", href: "/" },
@@ -35,15 +35,18 @@ export function Navbar() {
   const [profile, setProfile] = useState<Profile | null>(null)
   const supabase = createClient()
 
+  const [mounted, setMounted] = useState(false)
+
   useEffect(() => {
-    supabase.auth.getUser().then(async ({ data }) => {
+    setMounted(true)
+    supabase.auth.getUser().then(async ({ data }: { data: { user: SupabaseUser | null } }) => {
       setUser(data.user ?? null)
       if (data.user) {
         const p = await getProfile(data.user.id)
         setProfile(p)
       }
     })
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event: AuthChangeEvent, session) => {
       setUser(session?.user ?? null)
       if (session?.user) {
         const p = await getProfile(session.user.id)
@@ -60,8 +63,52 @@ export function Navbar() {
     window.location.href = "/"
   }
 
+  // Prevent hydration mismatch by not rendering auth-dependent UI until mounted on client
+  const renderAuthAction = () => {
+    if (!mounted) return <div className="w-20 h-9" /> // Placeholder for button
+    
+    if (user) {
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button size="sm" variant="outline" className="flex items-center gap-2" suppressHydrationWarning>
+              <div className="h-5 w-5 rounded-full bg-primary flex items-center justify-center text-xs text-primary-foreground font-bold">
+                {(profile?.full_name || user.email || "U")[0].toUpperCase()}
+              </div>
+              {profile?.full_name?.split(" ")[0] || user.email?.split("@")[0]}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            {user.email === "vigneshwarvigneshwar292@gmail.com" && (
+              <>
+                <DropdownMenuItem asChild>
+                  <Link href="/admin" className="w-full flex items-center gap-2 cursor-pointer">
+                    Admin Dashboard
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+              </>
+            )}
+            <DropdownMenuItem onClick={handleSignOut} className="text-red-500 focus:text-red-500 flex items-center gap-2 cursor-pointer">
+              <LogOut className="h-4 w-4" /> Sign Out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )
+    }
+
+    return (
+      <Button size="sm" className="bg-primary hover:bg-primary/90" asChild>
+        <Link href="/signin" className="flex items-center gap-2">
+          <User className="h-4 w-4" />
+          Sign In
+        </Link>
+      </Button>
+    )
+  }
+
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border">
+    <header className="fixed top-0 left-0 right-0 z-50 glass border-b border-border/60">
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-8">
         <div className="flex lg:flex-1">
           <Link href="/" className="flex items-center gap-2 -m-1.5 p-1.5">
@@ -110,7 +157,7 @@ export function Navbar() {
             </Link>
           ))}
           <DropdownMenu>
-            <DropdownMenuTrigger className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+            <DropdownMenuTrigger suppressHydrationWarning className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
               More <ChevronDown className="h-4 w-4" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
@@ -134,40 +181,7 @@ export function Navbar() {
             <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
             <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
           </button>
-          {user ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button size="sm" variant="outline" className="flex items-center gap-2" suppressHydrationWarning>
-                  <div className="h-5 w-5 rounded-full bg-primary flex items-center justify-center text-xs text-primary-foreground font-bold">
-                    {(profile?.full_name || user.email || "U")[0].toUpperCase()}
-                  </div>
-                  {profile?.full_name?.split(" ")[0] || user.email?.split("@")[0]}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                {user.email === "vigneshwarvigneshwar292@gmail.com" && (
-                  <>
-                    <DropdownMenuItem asChild>
-                      <Link href="/admin" className="w-full flex items-center gap-2 cursor-pointer">
-                        Admin Dashboard
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                  </>
-                )}
-                <DropdownMenuItem onClick={handleSignOut} className="text-red-500 focus:text-red-500 flex items-center gap-2 cursor-pointer">
-                  <LogOut className="h-4 w-4" /> Sign Out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <Button size="sm" className="bg-primary hover:bg-primary/90" asChild>
-              <Link href="/signin" className="flex items-center gap-2">
-                <User className="h-4 w-4" />
-                Sign In
-              </Link>
-            </Button>
-          )}
+          {renderAuthAction()}
         </div>
       </nav>
 

@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Inter, Space_Grotesk } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { ThemeProvider } from '@/components/theme-provider'
+import { AuroraBackground } from '@/components/ui/aurora-background'
 import './globals.css'
 
 const inter = Inter({ 
@@ -45,14 +46,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} ${spaceGrotesk.variable} font-sans antialiased`}>
+      <body className={`${inter.variable} ${spaceGrotesk.variable} font-sans antialiased text-foreground bg-transparent text-foreground relative min-h-screen min-h-screen relative`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <AuroraBackground />
+          <div className="relative z-10 w-full min-h-screen flex flex-col">
+            {children}
+          </div>
         </ThemeProvider>
         <Analytics />
       </body>

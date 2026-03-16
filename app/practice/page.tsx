@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { Navbar } from "@/components/navbar"
@@ -41,9 +41,11 @@ const difficultyColors: Record<string, string> = {
 
 export default function PracticePage() {
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-screen bg-transparent">
       <Navbar />
-      <PracticeContent />
+      <Suspense fallback={<div className="pt-28 pb-12 px-6 text-center text-muted-foreground">Loading...</div>}>
+        <PracticeContent />
+      </Suspense>
       <Footer />
     </main>
   )
@@ -159,7 +161,7 @@ function PracticeContent() {
           <motion.div variants={itemVariants} whileHover={{ y: -5 }}>
           <Card
             className={`border-border cursor-pointer transition-colors hover:border-primary/50 ${
-              selectedCategory === "Warm-up Quests" ? "ring-2 ring-primary" : "bg-card"
+              selectedCategory === "Warm-up Quests" ? "ring-2 ring-primary" : "bg-card/50 backdrop-blur-xl"
             }`}
             onClick={() => setSelectedCategory(selectedCategory === "Warm-up Quests" ? "All" : "Warm-up Quests")}
           >
@@ -180,7 +182,7 @@ function PracticeContent() {
           <motion.div variants={itemVariants} whileHover={{ y: -5 }}>
           <Card
             className={`border-border cursor-pointer transition-colors hover:border-primary/50 ${
-              selectedCategory === "Rookie Challenges" ? "ring-2 ring-primary" : "bg-card"
+              selectedCategory === "Rookie Challenges" ? "ring-2 ring-primary" : "bg-card/50 backdrop-blur-xl"
             }`}
             onClick={() => setSelectedCategory(selectedCategory === "Rookie Challenges" ? "All" : "Rookie Challenges")}
           >
@@ -201,7 +203,7 @@ function PracticeContent() {
           <motion.div variants={itemVariants} whileHover={{ y: -5 }}>
           <Card
             className={`border-border cursor-pointer transition-colors hover:border-primary/50 ${
-              selectedCategory === "Elite Algorithms" ? "ring-2 ring-primary" : "bg-card"
+              selectedCategory === "Elite Algorithms" ? "ring-2 ring-primary" : "bg-card/50 backdrop-blur-xl"
             }`}
             onClick={() => setSelectedCategory(selectedCategory === "Elite Algorithms" ? "All" : "Elite Algorithms")}
           >
@@ -222,7 +224,7 @@ function PracticeContent() {
           <motion.div variants={itemVariants} whileHover={{ y: -5 }}>
           <Card
             className={`border-border cursor-pointer transition-colors hover:border-primary/50 ${
-              selectedCategory === "Grandmaster Trials" ? "ring-2 ring-primary" : "bg-card"
+              selectedCategory === "Grandmaster Trials" ? "ring-2 ring-primary" : "bg-card/50 backdrop-blur-xl"
             }`}
             onClick={() => setSelectedCategory(selectedCategory === "Grandmaster Trials" ? "All" : "Grandmaster Trials")}
           >
@@ -246,7 +248,7 @@ function PracticeContent() {
            animate={{ opacity: 1, y: 0 }}
            transition={{ duration: 0.5, delay: 0.2 }}
         >
-          <Card className="bg-card border-border mb-6">
+          <Card className="bg-card/50 backdrop-blur-xl border-border mb-6">
           <CardContent className="p-4">
             <div className="flex flex-col lg:flex-row gap-4">
               <div className="relative flex-1">
@@ -294,7 +296,7 @@ function PracticeContent() {
               <TabsTrigger
                 key={category}
                 value={category}
-                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-full px-4 py-2 border border-border bg-card"
+                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-full px-4 py-2 border border-border bg-card/50 backdrop-blur-xl"
               >
                 {category}
               </TabsTrigger>
@@ -302,7 +304,7 @@ function PracticeContent() {
           </TabsList>
 
           <TabsContent value={selectedCategory}>
-            <Card className="bg-card border-border overflow-hidden">
+            <Card className="bg-card/50 backdrop-blur-xl border-border overflow-hidden">
               <CardHeader className="border-b border-border bg-muted/30 py-3">
                 <div className="grid grid-cols-12 gap-4 text-sm font-medium text-muted-foreground">
                   <div className="col-span-1 text-center">Status</div>

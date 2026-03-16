@@ -101,7 +101,7 @@ const sections = [
 
 export default function PracticePage() {
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-screen bg-transparent">
       <Navbar />
 
       <section className="pt-28 pb-12 px-6 lg:px-8">
@@ -115,7 +115,7 @@ export default function PracticePage() {
 
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {sections.map((section) => (
-              <Card key={section.title} className="bg-card border-border">
+              <Card key={section.title} className="bg-card/50 backdrop-blur-xl border-border">
                 <CardHeader>
                   <CardTitle>{section.title}</CardTitle>
                 </CardHeader>

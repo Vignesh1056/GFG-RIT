@@ -56,7 +56,7 @@ const resources = [
 
 export function ResourcesSection() {
   return (
-    <section className="py-24 bg-card/50">
+    <section className="py-24 bg-card/50 backdrop-blur-xl/50">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         {/* Section header */}
         <div className="text-center max-w-2xl mx-auto mb-16">
@@ -77,7 +77,7 @@ export function ResourcesSection() {
             <Link
               key={resource.title}
               href={resource.link}
-              className="group relative rounded-2xl border border-border bg-card p-6 transition-all hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5"
+              className="group relative rounded-2xl border border-border bg-card/50 backdrop-blur-xl p-6 transition-all hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5"
             >
               <div className={`inline-flex rounded-xl ${resource.bgColor} p-3 mb-4`}>
                 <resource.icon className={`h-6 w-6 ${resource.color}`} />

@@ -50,7 +50,7 @@ const eventTypeColors: Record<string, string> = {
 
 export function EventsSection() {
   return (
-    <section className="py-24 bg-background">
+    <section className="py-24 bg-background/50 backdrop-blur-md">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         {/* Section header */}
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-12">
@@ -78,7 +78,7 @@ export function EventsSection() {
           {upcomingEvents.map((event) => (
             <Card
               key={event.id}
-              className="group bg-card border-border hover:border-primary/50 transition-all duration-300"
+              className="group bg-card/50 backdrop-blur-xl border-border hover:border-primary/50 transition-all duration-300"
             >
               <CardHeader>
                 <div className="flex items-center justify-between mb-2">

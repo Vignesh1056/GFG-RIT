@@ -21,7 +21,7 @@ const itemVariants = {
 
 const team = [
   {
-    name: "Rahul Sharma",
+    name: "Praveen",
     role: "Club President",
     year: "4th Year, CSE",
     image: "/team/president.jpg",
@@ -33,7 +33,7 @@ const team = [
     },
   },
   {
-    name: "Priya Patel",
+    name: "Pranesh",
     role: "Vice President",
     year: "4th Year, IT",
     image: "/team/vp.jpg",
@@ -45,7 +45,7 @@ const team = [
     },
   },
   {
-    name: "Amit Kumar",
+    name: "Sanjai",
     role: "Technical Lead",
     year: "3rd Year, CSE",
     image: "/team/tech-lead.jpg",
@@ -57,7 +57,7 @@ const team = [
     },
   },
   {
-    name: "Sneha Reddy",
+    name: "Mugunthan",
     role: "Event Coordinator",
     year: "3rd Year, ECE",
     image: "/team/events.jpg",
@@ -72,7 +72,7 @@ const team = [
 
 export function TeamSection() {
   return (
-    <section className="py-24 bg-background">
+    <section className="py-24 bg-background/50 backdrop-blur-md">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         {/* Section header */}
         <motion.div 
@@ -106,7 +106,7 @@ export function TeamSection() {
               variants={itemVariants}
               whileHover={{ y: -5 }}
               key={member.name}
-              className="group relative rounded-2xl border border-border bg-card p-6 text-center shadow-sm transition-colors hover:border-primary/50"
+              className="group relative rounded-2xl border border-border bg-card/50 backdrop-blur-xl p-6 text-center shadow-sm transition-colors hover:border-primary/50"
             >
               {/* Avatar */}
               <div className="relative mx-auto mb-4 h-24 w-24 rounded-full bg-secondary overflow-hidden">

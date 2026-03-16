@@ -159,12 +159,10 @@ export default function LeaderboardPage() {
         .from("solved_problems")
         .select("user_id")
 
-      // Get all profiles
       const { data: profiles } = await supabase
         .from("profiles")
         .select("id, full_name, email")
 
-      // Get event registration counts per email
       const { data: eventData } = await supabase
         .from("event_registrations")
         .select("email")
@@ -192,7 +190,7 @@ export default function LeaderboardPage() {
       }
 
       const entries: LeaderboardEntry[] = profiles
-        .map((p) => {
+        .map((p: any) => {
           const solved = solvedCount[p.id] || 0
           const events = eventCount[p.email ?? ""] || 0
           const points = solved * 100 + events * 50
@@ -206,9 +204,9 @@ export default function LeaderboardPage() {
             badge: getBadge(points),
           }
         })
-        .filter((e) => e.points > 0)
-        .sort((a, b) => b.points - a.points)
-        .map((e, i) => ({ ...e, rank: i + 1 }))
+        .filter((e: any) => e.points > 0)
+        .sort((a: any, b: any) => b.points - a.points)
+        .map((e: any, i: number) => ({ ...e, rank: i + 1 }))
 
       setLeaderboardData(entries)
       setIsLoading(false)
@@ -218,7 +216,7 @@ export default function LeaderboardPage() {
   }, [])
 
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-screen bg-transparent">
       <Navbar />
       
       {/* Hero */}
@@ -258,75 +256,12 @@ export default function LeaderboardPage() {
         </motion.div>
       </section>
 
-      {/* Top 3 Spotlight */}
-      <section className="px-6 lg:px-8 pb-8">
-        <div className="mx-auto max-w-4xl">
-          {isLoading ? (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-12 text-muted-foreground text-sm">Loading leaderboard...</motion.div>
-          ) : leaderboardData.length < 3 ? (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-12 text-muted-foreground text-sm">Not enough data yet. Start solving problems to appear here!</motion.div>
-          ) : (
-            <motion.div 
-              variants={containerVariants}
-              initial="hidden"
-              animate="show"
-              className="grid grid-cols-3 gap-4"
-            >
-              {/* Second Place */}
-              <motion.div variants={itemVariants} className="order-1 pt-8">
-                <div className="relative rounded-2xl border border-border bg-card p-6 text-center hover:border-slate-400/50 transition-colors">
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-400/20 text-slate-300 font-bold">2</div>
-                  </div>
-                  <div className="mx-auto mt-2 h-16 w-16 rounded-full bg-secondary flex items-center justify-center text-2xl font-bold text-primary">
-                    {leaderboardData[1].name.split(" ").map(n => n[0]).join("")}
-                  </div>
-                  <h3 className="mt-3 font-semibold text-foreground">{leaderboardData[1].name}</h3>
-                  <p className="text-2xl font-bold text-slate-300">{leaderboardData[1].points}</p>
-                  <p className="text-xs text-muted-foreground">points</p>
-                </div>
-              </motion.div>
-              {/* First Place */}
-              <motion.div variants={itemVariants} className="order-2">
-                <div className="relative rounded-2xl border-2 border-amber-400/50 bg-card p-6 text-center scale-105 shadow-xl shadow-amber-500/10">
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-400/20">
-                      <Trophy className="h-5 w-5 text-amber-400" />
-                    </div>
-                  </div>
-                  <div className="mx-auto mt-2 h-20 w-20 rounded-full bg-secondary flex items-center justify-center text-3xl font-bold text-primary">
-                    {leaderboardData[0].name.split(" ").map(n => n[0]).join("")}
-                  </div>
-                  <h3 className="mt-3 font-semibold text-foreground text-lg">{leaderboardData[0].name}</h3>
-                  <p className="text-3xl font-bold text-amber-400">{leaderboardData[0].points}</p>
-                  <p className="text-xs text-muted-foreground">points</p>
-                  <Badge variant="outline" className="mt-2 border-amber-400/30 text-amber-400">Champion</Badge>
-                </div>
-              </motion.div>
-              {/* Third Place */}
-              <motion.div variants={itemVariants} className="order-3 pt-12">
-                <div className="relative rounded-2xl border border-border bg-card p-6 text-center hover:border-amber-600/50 transition-colors">
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-600/20 text-amber-600 font-bold">3</div>
-                  </div>
-                  <div className="mx-auto mt-2 h-16 w-16 rounded-full bg-secondary flex items-center justify-center text-2xl font-bold text-primary">
-                    {leaderboardData[2].name.split(" ").map(n => n[0]).join("")}
-                  </div>
-                  <h3 className="mt-3 font-semibold text-foreground">{leaderboardData[2].name}</h3>
-                  <p className="text-2xl font-bold text-amber-600">{leaderboardData[2].points}</p>
-                  <p className="text-xs text-muted-foreground">points</p>
-                </div>
-              </motion.div>
-            </motion.div>
-          )}
-        </div>
-      </section>
 
       {/* Tabs */}
       <section className="px-6 lg:px-8 pb-24">
         <div className="mx-auto max-w-7xl">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-3 mb-8 bg-card border border-border">
+            <TabsList className="grid w-full grid-cols-3 mb-8 bg-card/50 backdrop-blur-xl border border-border">
               <TabsTrigger value="leaderboard" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <TrendingUp className="h-4 w-4 mr-2" />
                 Full Leaderboard
@@ -343,7 +278,7 @@ export default function LeaderboardPage() {
 
             <TabsContent value="leaderboard">
               <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3 }}>
-              <Card className="bg-card border-border shadow-sm">
+              <Card className="bg-card/50 backdrop-blur-xl border-border shadow-sm">
                 <CardHeader>
                   <CardTitle>Top Performers</CardTitle>
                   <CardDescription>Points = problems solved × 100 + events attended × 50</CardDescription>
@@ -407,7 +342,7 @@ export default function LeaderboardPage() {
               <motion.div variants={containerVariants} initial="hidden" animate="show" className="grid gap-6">
               {contestWinners.map((contest) => (
                 <motion.div variants={itemVariants} key={contest.contest}>
-                <Card className="bg-card border-border shadow-sm">
+                <Card className="bg-card/50 backdrop-blur-xl border-border shadow-sm">
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <CardTitle>{contest.contest}</CardTitle>
@@ -442,7 +377,7 @@ export default function LeaderboardPage() {
               <motion.div variants={containerVariants} initial="hidden" animate="show" className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                 {achievements.map((achievement) => (
                   <motion.div variants={itemVariants} whileHover={{ y: -5 }} key={achievement.title} className="h-full">
-                  <Card className="bg-card border-border hover:border-primary/50 transition-colors h-full flex flex-col shadow-sm">
+                  <Card className="bg-card/50 backdrop-blur-xl border-border hover:border-primary/50 transition-colors h-full flex flex-col shadow-sm">
                     <CardHeader>
                       <div className={`inline-flex rounded-xl ${achievement.bgColor} p-3 w-fit mb-2`}>
                         <achievement.icon className={`h-6 w-6 ${achievement.color}`} />
